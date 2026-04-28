@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting…</title>
+  </head>
+  <body>
+    <script>
+      // GitHub Pages SPA fallback.
+      // Redirect /repo/any/route -> /repo/?/any/route so index.html can restore it.
+      ;(function () {
+        var l = window.location
+        var path = l.pathname
+        var base = path.split('/').slice(0, 2).join('/') + '/' // "/<repo>/"
+        var rest = path.replace(base, '/')
+        var search = l.search ? l.search.slice(1).replace(/&/g, '~and~') : ''
+        var target = base + '?'+ rest + (search ? '&' + search : '') + l.hash
+        l.replace(target)
+      })()
+    </script>
+  </body>
+</html>
+
