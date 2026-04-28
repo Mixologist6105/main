@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import LogoIcon from './LogoIcon'
 
 function Navbar({ lang, onLangChange }) {
+  const baseUrl = import.meta.env.BASE_URL || '/'
   const t = lang === 'zh'
     ? {
         features: '功能特性',
@@ -30,7 +31,7 @@ function Navbar({ lang, onLangChange }) {
         </NavLink>
 
         <nav className="nav-links">
-          <a href="/#features" className="nav-link">
+          <a href={`${baseUrl}#features`} className="nav-link">
             {t.features}
           </a>
           <NavLink to="/tutorial" className="nav-link">
