@@ -80,7 +80,10 @@ function Home({ lang }) {
           </div>
 
           <div className="preview-frame">
-            <img src="/ui-preview.png" alt="MIXOCORE UI 预览图" />
+            <img
+              src={`${import.meta.env.BASE_URL}ui-preview.png`}
+              alt="MIXOCORE UI 预览图"
+            />
           </div>
         </div>
       </section>
