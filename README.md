@@ -1,16 +1,30 @@
-# React + Vite
+# MixoCore
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<div align="center"> 
 
-Currently, two official plugins are available:
+**为专业游戏玩家设计的智能辅助工具**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+高度自定义 · 强大功能 · 极致性能 
 
-## React Compiler
+</div>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 预览
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🏠 **首页** — 产品介绍与功能特性展示
+- 📖 **教程** — 交互式软件 UI，hover 查看功能说明
+- 👤 **关于** — 团队信息与社交媒体链接
+
+## 技术栈
+
+- React 19 + Vite
+- Tailwind CSS v4
+- React Router
+- GitHub Pages
+
+## 本地开发
+
+```bash
+npm install
+npm run dev 
