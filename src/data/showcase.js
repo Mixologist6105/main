@@ -1,3 +1,8 @@
+// Screenshots live in public/preview/. Always prefix public-asset paths with
+// BASE so they work under the GitHub Pages sub-path (e.g. /main/).
+// Public-asset prefix: '/' in dev, '/<repo>/' in GH Pages builds
+const BASE = import.meta.env.BASE_URL
+
 export const showcaseBlocks = [
   {
     title: { zh: '智能视觉识别', en: 'Vision Recognition' },
@@ -11,7 +16,7 @@ export const showcaseBlocks = [
       { zh: '实时反馈', en: 'Real-time' },
       { zh: '低延迟', en: 'Low Latency' },
     ], 
-    src: { zh: '/preview/Preview_Main_zh.png', en: '/preview/Preview_Main_en.png' },
+    src: { zh: `${BASE}preview/Preview_Main_zh.png`, en: `${BASE}preview/Preview_Main_en.png` },
     flip: false,
   },
   {
@@ -26,7 +31,7 @@ export const showcaseBlocks = [
       { zh: 'Json', en: 'Json' },
       { zh: '个性化', en: 'Customization' },
     ],
-    src: '/preview/Preview_CFG.png',
+    src: `${BASE}preview/Preview_CFG.png`,
     flip: true,
   },
   {
@@ -41,7 +46,7 @@ export const showcaseBlocks = [
       { zh: '脚本引擎', en: 'Scripting' },
       { zh: '完整文档', en: 'Full Docs' },
     ],
-    src: '/preview/Preview_Scripts.png',
+    src: `${BASE}preview/Preview_Scripts.png`,
     flip: false,
   },
   {
@@ -57,7 +62,7 @@ export const showcaseBlocks = [
       { zh: '日志系统', en: 'Debug Logs' },
       { zh: '指令系统', en: 'Command system' },
     ],
-    src: { zh: '/preview/Preview_Command_zh.png', en: '/preview/Preview_Command_en.png' },
+    src: { zh: `${BASE}preview/Preview_Command_zh.png`, en: `${BASE}preview/Preview_Command_en.png` },
     flip: true,
   },
   {
@@ -71,7 +76,7 @@ export const showcaseBlocks = [
       { zh: '详细信息', en: 'Detailed Information' },
       { zh: '敏感信息保护', en: 'Sensitive information protection' },
     ],
-    src: { zh: '/preview/Preview_User.png', en: '/preview/Preview_User.png' },
+    src: { zh: `${BASE}preview/Preview_User.png`, en: `${BASE}preview/Preview_User.png` },
     flip: false,
   },
 ]

@@ -39,7 +39,7 @@ export default function Docs() {
           </div>
         )}
         <iframe
-          src="/lua_api_doc.html"
+          src={`${import.meta.env.BASE_URL}lua_api_doc.html`}
           title={t('docs.iframe.title')}
           onLoad={onFrameLoad}
           className={`w-full h-full border-0 bg-white transition-opacity duration-500 ${loaded ? 'opacity-100 fade-in' : 'opacity-0'}`}

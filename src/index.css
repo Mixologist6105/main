@@ -13,15 +13,17 @@
   --font-sans: 'vivoSans', system-ui, -apple-system, sans-serif;
 }
 
+/* Font files live in public/fonts; relative URLs rebase correctly for any
+   base ('/' in dev, '/main/' in GH Pages builds) */
 @font-face {
   font-family: 'Backslash';
-  src: url('/fonts/Backslash.ttf') format('truetype');
+  src: url('../fonts/Backslash.ttf') format('truetype');
   font-display: swap;
 }
 
 @font-face {
   font-family: 'vivoSans';
-  src: url('/fonts/vivoSans-DemiBold.ttf') format('truetype');
+  src: url('../fonts/vivoSans-DemiBold.ttf') format('truetype');
   font-weight: 600;
   font-display: swap;
 }

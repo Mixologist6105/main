@@ -1,3 +1,8 @@
+// Screenshots live in public/preview/. Always prefix public-asset paths with
+// BASE so they work under the GitHub Pages sub-path (e.g. /main/).
+// Public-asset prefix: '/' in dev, '/<repo>/' in GH Pages builds
+const BASE = import.meta.env.BASE_URL
+
 export const projects = [
   {
     title: 'Braytech',
@@ -7,7 +12,7 @@ export const projects = [
       en: 'Continuously updated projects. Real time visual recognition based on onnxruntime and Lua programmable automation, an integrated auxiliary tool designed for gaming and efficiency scenarios.',
     },
     tags: ['C#', 'C++ Native', 'onnxruntime', 'DirectML', 'Win x64'], 
-    src: { zh: '/preview/Preview_Main_zh.png', en: '/preview/Preview_Main_en.png' },
+    src: { zh: `${BASE}preview/Preview_Main_zh.png`, en: `${BASE}preview/Preview_Main_en.png` },
     link: '/docs',
     status: 'live',
   },
@@ -19,7 +24,7 @@ export const projects = [
       en: 'LUA project based on Gamesense and Primordial software platforms.',
     },
     tags: ['Lua', 'FFI', 'CS:GO'], 
-    src: { zh: '/preview/Gamesense_Lua.png', en: '/preview/Gamesense_Lua.png' }, 
+    src: { zh: `${BASE}preview/Gamesense_Lua.png`, en: `${BASE}preview/Gamesense_Lua.png` }, 
     status: 'archived',
   },
   {
@@ -30,7 +35,7 @@ export const projects = [
       en: 'Through the cloud scripting API open on the OneTap software platform, Discord robots can be used to authorize script operations for users in the cloud, and all authorization operations are completed by the robots themselves.',
     },
     tags: ['Node.js', 'Javascript', 'CS:GO'], 
-    src: { zh: '/preview/authorization_Bot.png', en: '/preview/authorization_Bot.png' }, 
+    src: { zh: `${BASE}preview/authorization_Bot.png`, en: `${BASE}preview/authorization_Bot.png` }, 
     status: 'archived',
   },
   {
@@ -41,7 +46,7 @@ export const projects = [
       en: 'Cloud Javascript project based on Onetap software platform, script access permissions distributed by Auth Bot.',
     },
     tags: ['Javascript', 'CS:GO'], 
-    src: { zh: '/preview/Onetap_js.png', en: '/preview/Onetap_js.png' }, 
+    src: { zh: `${BASE}preview/Onetap_js.png`, en: `${BASE}preview/Onetap_js.png` }, 
     status: 'archived',
   },
   {
@@ -52,7 +57,7 @@ export const projects = [
       en: 'Create a personal blog using Typecho and develop a game script communication forum using Xenforo.',
     },
     tags: ['Typecho', 'Xenforo'], 
-    src: { zh: '/preview/Wiki.png', en: '/preview/Wiki.png' }, 
+    src: { zh: `${BASE}preview/Wiki.png`, en: `${BASE}preview/Wiki.png` }, 
     status: 'archived',
   },
   {
