@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Braytech Lua API 文档</title>
+<style>
+  :root {
+    --bg: #0e0e11;
+    --sidebar: #131318;
+    --panel: #17171c;
+    --code: #141419;
+    --border: #26262e;
+    --fg: #d6d6dc;
+    --dim: #8b8b96;
+    --accent: #FFD745;
+    --accent-dim: rgba(255, 215, 69, .12);
+    --link: #e8c33a;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size: 14.5px; line-height: 1.7;
+  }
+  ::selection { background: var(--accent); color: #141414; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { background: #2e2e36; border-radius: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+ 
+  #sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: 250px;
+    background: var(--sidebar); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 22px 0 40px; z-index: 10;
+  }
+  #sidebar .logo {
+    padding: 0 22px 18px; border-bottom: 1px solid var(--border); margin-bottom: 14px;
+  }
+  #sidebar .logo b { color: var(--accent); font-size: 17px; letter-spacing: .5px; }
+  #sidebar .logo span { display: block; color: var(--dim); font-size: 11px; margin-top: 3px; }
+  #sidebar .nav-group { padding: 10px 22px 4px; color: var(--dim); font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: 1.5px; }
+  #sidebar a {
+    display: block; padding: 6px 22px; color: var(--fg); text-decoration: none;
+    font-size: 13.5px; border-left: 2px solid transparent; transition: all .12s;
+  }
+  #sidebar a:hover { background: rgba(255,255,255,.04); color: var(--accent); }
+  #sidebar a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); }
+  #sidebar a code { font-size: 12.5px; }
+
+  /* ── 内容区 ── */
+  #content { margin-left: 250px; padding: 40px 56px 90px; max-width: 940px; }
+  section { display: none; }
+  section.active { display: block; animation: fade .2s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+  h1 { font-size: 26px; margin: 0 0 6px; color: #fff; font-weight: 650; }
+  h1 .ns { color: var(--accent); }
+  .lead { color: var(--dim); margin: 0 0 26px; font-size: 13.5px; }
+  h2 { font-size: 17px; margin: 34px 0 10px; color: #fff; font-weight: 600;
+    padding-top: 16px; border-top: 1px solid var(--border); }
+  h3 { font-size: 14.5px; margin: 22px 0 6px; color: #eee; }
+  p { margin: 8px 0; }
+  ul { margin: 6px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+  a { color: var(--link); }
+
+  code {
+    font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px;
+    background: rgba(255,255,255,.06); padding: 1.5px 6px; border-radius: 4px; color: #ffd97a;
+  }
+  pre {
+    background: var(--code); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; overflow-x: auto; margin: 12px 0;
+  }
+  pre code { background: none; padding: 0; color: #c8c8d2; font-size: 12.5px; line-height: 1.65; }
+  pre .kw { color: #c586c0; }      /* function/local/return/if/then/end */
+  pre .str { color: #ce9178; }
+  pre .num { color: #b5cea8; }
+  pre .cm { color: #5d5d6a; }
+  pre .fn { color: #dcdcaa; }
+  pre .ns2 { color: #4ec9b0; }
+ 
+  .func { background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; margin: 10px 0; }
+  .func .sig { font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; color: #e8e8ee; }
+  .func .sig .ns2 { color: var(--accent); }
+  .func .sig .ret { color: #4ec9b0; }
+  .func .desc { color: var(--dim); font-size: 13px; margin-top: 5px; }
+  .func .desc code { font-size: 12px; }
+
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+  th { background: var(--panel); color: var(--accent); text-align: left; font-weight: 600; }
+  th, td { border: 1px solid var(--border); padding: 7px 12px; }
+  tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+
+  .note {
+    background: var(--accent-dim); border: 1px solid rgba(255, 215, 69, .25);
+    border-radius: 8px; padding: 10px 16px; margin: 14px 0; font-size: 13px;
+  }
+  .note::before { content: "NOTE"; display: block; color: var(--accent); font-size: 10.5px;
+    font-weight: 700; letter-spacing: 1.5px; margin-bottom: 3px; }
+  .warn { background: rgba(255, 90, 90, .08); border-color: rgba(255, 90, 90, .3); }
+  .warn::before { content: "WARNING"; color: #ff7a7a; }
+
+  /* 移动端 */
+  #menuBtn { display: none; position: fixed; top: 12px; left: 12px; z-index: 20;
+    background: var(--panel); border: 1px solid var(--border); color: var(--accent);
+    border-radius: 8px; padding: 8px 12px; font-size: 15px; cursor: pointer; }
+  @media (max-width: 860px) {
+    #sidebar { transform: translateX(-100%); transition: transform .22s ease; }
+    #sidebar.open { transform: none; box-shadow: 0 0 60px rgba(0,0,0,.6); }
+    #content { margin-left: 0; padding: 64px 20px 60px; }
+    #menuBtn { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<button id="menuBtn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<nav id="sidebar">
+  <div class="logo"><b>Braytech Lua API</b><span>MoonSharp (Lua 5.2)</span></div>
+  <div class="nav-group">开始</div>
+  <a href="#getting-started">快速上手</a>
+  <a href="#events">事件系统</a>
+  <div class="nav-group">命名空间</div>
+  <a href="#client"><code>client</code></a>
+  <a href="#render"><code>render</code></a>
+  <a href="#ui"><code>ui</code></a>
+  <a href="#json"><code>json</code></a>
+  <div class="nav-group">其它</div>
+  <a href="#globals">全局函数</a>
+  <a href="#examples">完整示例</a>
+</nav>
+
+<main id="content">
+ 
+<section id="getting-started">
+  <h1>快速上手</h1>
+  <p class="lead">脚本目录 <code>bin/scripts/*.lua</code> · 在软件脚本页加载/卸载 · 支持 <code>require</code> 加载同目录模块</p>
+
+  <h2>模块化（require）</h2>
+  <p>支持从 <code>bin/scripts</code> 的<strong>子文件夹</strong>加载库文件，子文件夹内的 lua <strong>不会</strong>出现在软件的脚本列表中，适合放数学库/工具库等公共模块：</p>
+  <pre><code><span class="kw">local</span> mathlib = <span class="fn">require</span> <span class="str">"libs/mathlib"</span>   <span class="cm">-- 加载 bin/scripts/libs/mathlib.lua</span>
+<span class="kw">local</span> mathlib = <span class="fn">require</span> <span class="str">"libs.mathlib"</span>   <span class="cm">-- 点号写法等价</span>
+mathlib.<span class="fn">clamp</span>(x, <span class="num">0</span>, <span class="num">100</span>)</code></pre>
+  <p>库文件按标准 Lua 模块写法，<code>return</code> 一个 table 即可。</p>
+
+  <h2>最小示例</h2>
+  <pre><code><span class="cm">-- 锁定目标时画金色框</span>
+<span class="ns2">client</span>.<span class="fn">set_event_callback</span>(<span class="str">"paint"</span>, <span class="kw">function</span>()
+    <span class="kw">local</span> t = <span class="ns2">client</span>.<span class="fn">get_target</span>()
+    <span class="kw">if</span> t <span class="kw">then</span>
+        <span class="ns2">render</span>.<span class="fn">rect</span>(t.x, t.y, t.w, t.h, <span class="num">255</span>, <span class="num">215</span>, <span class="num">69</span>)
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+
+  <h2>脚本结构约定</h2>
+  <ul>
+    <li>顶层代码在加载时执行一次 —— 在这里创建控件、注册事件。</li>
+    <li>需要每帧执行的内容放进 <code>paint</code> 事件，需要清理的内容放进 <code>unload</code> 事件。</li>
+    <li>所有回调都运行在 UI 线程，可直接读写 <code>ui.get</code> / <code>ui.set</code>。</li>
+    <li>加载同名/其它脚本会先卸载当前脚本，<code>unload</code> → 新脚本 <code>load</code>。</li>
+  </ul>
+
+  <div class="note">注册任意 <code>paint</code> 回调后会自动显示全屏绘制覆盖窗口；全部注销或脚本卸载后自动关闭。覆盖窗口跟随软件的 Anti-OBS 设置。</div>
+</section>
+ 
+<section id="events">
+  <h1>事件系统</h1>
+  <p class="lead">事件回调注册</p>
+
+  <div class="func">
+    <div class="sig"><span class="ns2">client</span>.set_event_callback(name: <span class="ret">string</span>, fn: <span class="ret">function</span>)</div>
+    <div class="desc">注册事件回调。同一事件可注册多个回调。</div>
+  </div>
+  <div class="func">
+    <div class="sig"><span class="ns2">client</span>.unset_event_callback(name: <span class="ret">string</span>, fn: <span class="ret">function</span>)</div>
+    <div class="desc">按函数引用移除回调。</div>
+  </div>
+
+  <h2>事件列表</h2>
+  <table>
+    <tr><th>事件名</th><th>回调参数</th><th>触发时机</th></tr>
+    <tr><td><code>"paint"</code></td><td>无</td><td>每帧。在回调内调用 <code>render.*</code> 绘制到屏幕覆盖层</td></tr>
+    <tr><td><code>"target"</code></td><td>target 或 nil</td><td>锁定目标出现 / 切换 / 丢失时</td></tr>
+    <tr><td><code>"key_pressed"</code></td><td>binding: string</td><td>软件内注册的按键绑定被按下时</td></tr>
+    <tr><td><code>"hw_button"</code></td><td>table { button, down }</td><td>硬件盒鼠标物理按键状态变化（left/right/middle/mouse4/mouse5）</td></tr>
+    <tr><td><code>"load"</code></td><td>无</td><td>脚本加载完成后</td></tr>
+    <tr><td><code>"unload"</code></td><td>无</td><td>脚本即将卸载（清理资源）</td></tr>
+  </table>
+
+  <pre><code><span class="ns2">client</span>.<span class="fn">set_event_callback</span>(<span class="str">"target"</span>, <span class="kw">function</span>(t)
+    <span class="kw">if</span> t <span class="kw">then</span>
+        <span class="ns2">client</span>.<span class="fn">log</span>(<span class="str">"locked #"</span> .. t.id)
+    <span class="kw">else</span>
+        <span class="ns2">client</span>.<span class="fn">log</span>(<span class="str">"target lost"</span>)
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+
+  <div class="note">旧式全局函数 <code>on_key_pressed(binding)</code> / <code>on_unload()</code> 仍然兼容，但新代码建议统一用事件系统。</div>
+</section>
+ 
+<section id="client">
+  <h1><span class="ns">client</span> 命名空间</h1>
+  <p class="lead">日志、系统信息、输入发送、定时器</p>
+
+  <h2>日志与信息</h2>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.log(value)</div>
+    <div class="desc">输出到软件 Debug 日志页。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.get_version() → <span class="ret">string</span></div>
+    <div class="desc">软件版本号。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.screen_size() → <span class="ret">width, height</span></div>
+    <div class="desc">屏幕物理像素，返回两个值。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.time_ms() → <span class="ret">number</span></div>
+    <div class="desc">系统启动以来的毫秒数（int64）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.get_fps() → <span class="ret">number</span></div>
+    <div class="desc">当前推理 FPS。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.get_latency_ms() → <span class="ret">number</span></div>
+    <div class="desc">捕获+推理全流程延迟（毫秒，EMA 平滑）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.toast(message: <span class="ret">string</span>)</div>
+    <div class="desc">顶栏 Toast 弹窗提示，不写日志页。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.open_url(url: <span class="ret">string</span>)</div>
+    <div class="desc">用默认浏览器打开链接。</div></div>
+
+  <h2>运行时状态</h2>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.get_aim_state() → <span class="ret">table</span></div>
+    <div class="desc">瞄准/扳机状态：<code>aimbot_on</code>、<code>aimbot_active</code>（正在瞄准）、<code>triggerbot_on</code>、<code>triggerbot_active</code>、<code>override</code>（覆盖模式），均为 bool。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.get_model_info() → <span class="ret">table</span></div>
+    <div class="desc">当前模型：<code>name</code>、<code>input_width</code>、<code>input_height</code>、<code>classes</code>（类别名数组，1 起始）。未加载模型时尺寸为 0。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.get_hardware() → <span class="ret">table</span></div>
+    <div class="desc">硬件盒状态：<code>connected</code>、<code>device_type</code>（<code>"Makcu"</code>/<code>"Makxd"</code>/<code>"KmboxNet"</code>，未连接为 nil）、<code>hw_keyboard</code>（硬件是否接管键盘）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.is_hw_button_down(button: <span class="ret">string</span>) → <span class="ret">bool</span></div>
+    <div class="desc">硬件盒鼠标物理按键是否按下，<code>"left"</code>/<code>"right"</code>/<code>"middle"</code>/<code>"mouse4"</code>/<code>"mouse5"</code>。不依赖系统鼠标状态，直接读硬件上报。配合 <code>hw_button</code> 事件使用。</div></div>
+
+  <h2>输入</h2>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.is_key_down(vk: <span class="ret">number</span>) → <span class="ret">bool</span></div>
+    <div class="desc">Win32 虚拟键码是否按下。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.send_key(scan: <span class="ret">number</span>, down: <span class="ret">bool</span>)</div>
+    <div class="desc">发送扫描码按键。连接 Kmbox / Makxd 时走硬件，否则走 user32。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.send_mouse_move(dx: <span class="ret">number</span>, dy: <span class="ret">number</span>)</div>
+    <div class="desc">相对移动鼠标（硬件优先）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.send_mouse_button(button: <span class="ret">string</span>, down: <span class="ret">bool</span>)</div>
+    <div class="desc"><code>"left"</code> / <code>"right"</code> / <code>"middle"</code>，down 省略时为 true。</div></div>
+
+  <h2>定时器</h2>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.set_interval(ms: <span class="ret">number</span>, fn: <span class="ret">function</span>) → <span class="ret">id</span></div>
+    <div class="desc">每 ms 毫秒执行一次，回调在 UI 线程。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.set_timeout(ms: <span class="ret">number</span>, fn: <span class="ret">function</span>) → <span class="ret">id</span></div>
+    <div class="desc">延迟执行一次。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.clear_interval(id) / <span class="ns2">client</span>.clear_timeout(id)</div>
+    <div class="desc">取消定时器。脚本卸载时所有定时器自动取消。</div></div>
+
+  <h2>自定义指令</h2>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.register_command(name: <span class="ret">string</span>, usage: <span class="ret">string</span>, fn: <span class="ret">function</span>) → <span class="ret">bool</span></div>
+    <div class="desc">在 Debug 日志页注册一条自定义指令。用户输入 <code>/name 参数1 参数2</code> 时触发 <code>fn(args)</code>，args 为字符串 table（1 起始下标）。重名（含内建指令）时返回 false。脚本卸载时自动注销，并会出现在 <code>/help</code> 列表中。</div></div>
+  <pre><code><span class="ns2">client</span>.<span class="fn">register_command</span>(<span class="str">"heal"</span>, <span class="str">"/heal &lt;秒&gt;"</span>, <span class="kw">function</span>(args)
+    <span class="kw">local</span> sec = <span class="fn">tonumber</span>(args[<span class="num">1</span>]) <span class="kw">or</span> <span class="num">5</span>
+    <span class="ns2">client</span>.<span class="fn">log</span>(<span class="str">"healing for "</span> .. sec .. <span class="str">"s"</span>)
+<span class="kw">end</span>)</code></pre>
+
+  <h2>HTTP 请求（异步）</h2>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.http_get(url [, headers], fn)</div>
+    <div class="desc">发起 GET 请求。headers 可选，为 table（如 <code>{ ["Authorization"] = "Bearer ..." }</code>）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.http_post(url, body [, headers], fn)</div>
+    <div class="desc">发起 POST 请求，body 默认以 <code>application/json</code> 发送；可在 headers 里用 <code>["Content-Type"]</code> 覆盖（如 <code>application/x-www-form-urlencoded</code>）。</div></div>
+  <p>回调在 UI 线程执行，收到 table：<code>ok</code>（2xx 为 true）、<code>status</code>（HTTP 状态码，网络错误为 0）、<code>body</code>（响应文本或错误信息）。默认超时 15 秒。</p>
+  <pre><code><span class="ns2">client</span>.<span class="fn">http_get</span>(<span class="str">"https://api.example.com/data"</span>, <span class="kw">function</span>(resp)
+    <span class="kw">if</span> resp.ok <span class="kw">then</span>
+        <span class="kw">local</span> data = <span class="ns2">json</span>.<span class="fn">parse</span>(resp.body)
+        <span class="ns2">client</span>.<span class="fn">log</span>(data.title)
+    <span class="kw">end</span>
+<span class="kw">end</span>)</code></pre>
+
+  <h2>文件读写（持久化）</h2>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.write_file(name, content: <span class="ret">string</span>) → <span class="ret">bool</span></div>
+    <div class="desc">写入文本到 <code>bin/scripts/data/name</code>（UTF-8，自动建目录）。文件名不允许路径分隔符和 <code>..</code>。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.read_file(name) → <span class="ret">string | nil</span></div>
+    <div class="desc">读取文件内容，文件不存在返回 nil。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.file_exists(name) → <span class="ret">bool</span> / <span class="ns2">client</span>.delete_file(name) → <span class="ret">bool</span></div>
+    <div class="desc">检查 / 删除文件。</div></div>
+  <pre><code><span class="cm">-- 存取自定义 JSON (账号、卡密、设置等, 格式由脚本作者自定)</span>
+<span class="ns2">client</span>.<span class="fn">write_file</span>(<span class="str">"account.json"</span>, <span class="ns2">json</span>.<span class="fn">stringify</span>({ user = <span class="str">"name"</span>, token = <span class="str">"..."</span> }))
+<span class="kw">local</span> acc = <span class="ns2">json</span>.<span class="fn">parse</span>(<span class="ns2">client</span>.<span class="fn">read_file</span>(<span class="str">"account.json"</span>))</code></pre>
+
+  <h2>目标数据</h2>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.get_target() → <span class="ret">table | nil</span></div>
+    <div class="desc">当前锁定目标，无目标返回 nil。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">client</span>.get_predictions() → <span class="ret">table[]</span></div>
+    <div class="desc">当前帧全部检测目标（数组，1 起始下标）。</div></div>
+
+  <h3>目标 table 字段</h3>
+  <table>
+    <tr><th>字段</th><th>类型</th><th>说明</th></tr>
+    <tr><td><code>id</code></td><td>number</td><td>跨帧追踪 ID（-1 = 未关联）</td></tr>
+    <tr><td><code>x, y, w, h</code></td><td>number</td><td>边界框（屏幕物理像素）</td></tr>
+    <tr><td><code>cx, cy</code></td><td>number</td><td>中心点</td></tr>
+    <tr><td><code>confidence</code></td><td>number</td><td>置信度 0~1</td></tr>
+    <tr><td><code>class</code></td><td>number</td><td>类别索引</td></tr>
+    <tr><td><code>alias</code></td><td>string</td><td>类别名</td></tr>
+  </table>
+</section>
+ 
+<section id="render">
+  <h1><span class="ns">render</span> 命名空间</h1>
+  <p class="lead">屏幕覆盖层绘制 · 仅在 <code>paint</code> 事件内有效 · 坐标为屏幕物理像素（自动处理 DPI）· 颜色分量 0~255，alpha 省略默认 255 · 每帧上限 512 条</p>
+
+  <div class="func"><div class="sig"><span class="ns2">render</span>.text(x, y, text, r, g, b [, a])</div>
+    <div class="desc">文字（14px Segoe UI）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">render</span>.rect(x, y, w, h, r, g, b [, a])</div>
+    <div class="desc">空心矩形，线宽 1.5。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">render</span>.rect_filled(x, y, w, h, r, g, b [, a])</div>
+    <div class="desc">实心矩形。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">render</span>.line(x1, y1, x2, y2, r, g, b [, a])</div>
+    <div class="desc">线段。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">render</span>.circle(cx, cy, radius, r, g, b [, a])</div>
+    <div class="desc">空心圆。</div></div>
+
+  <h2>示例</h2>
+  <pre><code><span class="ns2">render</span>.<span class="fn">rect_filled</span>(<span class="num">12</span>, <span class="num">44</span>, <span class="num">180</span>, <span class="num">24</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">100</span>)  <span class="cm">-- 半透明底板</span>
+<span class="ns2">render</span>.<span class="fn">text</span>(<span class="num">18</span>, <span class="num">48</span>, <span class="str">"hello"</span>, <span class="num">255</span>, <span class="num">215</span>, <span class="num">69</span>)
+<span class="ns2">render</span>.<span class="fn">line</span>(<span class="num">0</span>, <span class="num">0</span>, <span class="num">100</span>, <span class="num">100</span>, <span class="num">255</span>, <span class="num">80</span>, <span class="num">80</span>, <span class="num">180</span>)</code></pre>
+
+  <div class="note">绘制覆盖层是独立的全屏透明窗口（点击穿透、不显示在任务栏），有 paint 回调时才显示。推理停止后目标快照会被清空，不会残留旧画面。</div>
+</section>
+ 
+<section id="ui">
+  <h1><span class="ns">ui</span> 命名空间</h1>
+  <p class="lead">在软件脚本页创建控件 · 值持久化到 cfg 配置</p>
+
+  <h2>创建控件</h2>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.add_toggle(text, key) → <span class="ret">handle</span></div>
+    <div class="desc">开关。handle 额外含 <code>is_on</code> 字段。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.add_runtime_toggle(text, key) → <span class="ret">handle</span></div>
+    <div class="desc">运行时开关，不写入 cfg。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.add_slider(text, min, max, unit, key, default) → <span class="ret">handle</span></div>
+    <div class="desc">滑块。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.add_combobox(text, options, key, default) → <span class="ret">handle</span></div>
+    <div class="desc">下拉框，options 为字符串数组。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.add_button(text, fn)</div>
+    <div class="desc">按钮，点击执行 fn。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.add_keychanger(text, key, default) → <span class="ret">handle</span></div>
+    <div class="desc">按键绑定控件，default 为字符串或字符串数组。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.add_text(text) / <span class="ns2">ui</span>.add_separator()</div>
+    <div class="desc">说明文字 / 分割线。</div></div>
+
+  <h3>控件句柄</h3>
+  <p><code>add_*</code> 返回的 handle table：</p>
+  <ul>
+    <li><code>handle:get()</code> — 读当前值</li>
+    <li><code>handle:set(v)</code> — 写值</li>
+    <li><code>handle:set_visible(b)</code> / <code>handle:is_visible()</code> — 显隐控制</li>
+    <li><code>handle.key</code> — 配置键名</li>
+  </ul>
+
+  <h2>参数读写</h2>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.get(key) → <span class="ret">value</span></div>
+    <div class="desc">读任意参数（bool / number / string / table）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.set(key, value)</div>
+    <div class="desc">写任意参数。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">ui</span>.is_key_down(key) → <span class="ret">bool</span></div>
+    <div class="desc">按键绑定控件当前是否有键按下。</div></div>
+
+  <div class="warn note">软件设置保留键（语言、GPU、Anti-OBS 等 Menu Settings 键）Lua 无法读写，调用会被拒绝并输出日志。</div>
+</section>
+ 
+<section id="json">
+  <h1><span class="ns">json</span> 命名空间</h1>
+  <p class="lead">JSON 解析与序列化（System.Text.Json）</p>
+
+  <div class="func"><div class="sig"><span class="ns2">json</span>.parse(text: <span class="ret">string</span>) → <span class="ret">table | nil</span></div>
+    <div class="desc">解析 JSON 字符串。对象 → 字符串键 table，数组 → 1 起始整数键 table，null → nil。解析失败输出日志并返回 nil。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">json</span>.stringify(value) → <span class="ret">string</span></div>
+    <div class="desc">把 table/number/string/bool 序列化为 JSON。键为连续整数 1..n 的 table 输出为数组，其余输出为对象。</div></div>
+
+  <pre><code><span class="kw">local</span> t = <span class="ns2">json</span>.<span class="fn">parse</span>(<span class="str">'{"a": 1, "list": [10, 20]}'</span>)
+<span class="ns2">client</span>.<span class="fn">log</span>(t.list[<span class="num">2</span>])  <span class="cm">-- 20</span>
+<span class="ns2">client</span>.<span class="fn">log</span>(<span class="ns2">json</span>.<span class="fn">stringify</span>({ name = <span class="str">"braytech"</span>, flags = { <span class="kw">true</span>, <span class="kw">false</span> } }))</code></pre>
+</section>
+ 
+<section id="globals">
+  <h1>全局函数</h1>
+  <p class="lead">命名空间之外的内置函数</p>
+
+  <div class="func"><div class="sig">lang(zh: <span class="ret">string</span>, en: <span class="ret">string</span>) → <span class="ret">string</span></div>
+    <div class="desc">按软件当前语言返回对应字符串，用于控件文本本地化。</div></div>
+  <div class="func"><div class="sig">require <span class="ret">"name"</span></div>
+    <div class="desc">加载 <code>bin/scripts</code> 目录下的 <code>name.lua</code> 模块，支持子文件夹（<code>require "libs/math"</code> 或 <code>require "libs.math"</code>），子文件夹内的文件不出现在脚本列表。</div></div>
+</section>
+ 
+<section id="examples">
+  <h1>完整示例</h1>
+  <p class="lead">更多示例见 <code>bin/scripts/lua_api_test.lua</code></p>
+
+  <pre><code><span class="cm">-- 目标高亮 + 中心准星 + 信息面板</span>
+<span class="kw">local</span> sw, sh = <span class="ns2">client</span>.<span class="fn">screen_size</span>()
+<span class="kw">local</span> cx, cy = sw / <span class="num">2</span>, sh / <span class="num">2</span>
+
+<span class="ns2">client</span>.<span class="fn">set_event_callback</span>(<span class="str">"paint"</span>, <span class="kw">function</span>()
+    <span class="cm">-- 中心十字</span>
+    <span class="ns2">render</span>.<span class="fn">line</span>(cx - <span class="num">12</span>, cy, cx + <span class="num">12</span>, cy, <span class="num">255</span>, <span class="num">215</span>, <span class="num">69</span>, <span class="num">200</span>)
+    <span class="ns2">render</span>.<span class="fn">line</span>(cx, cy - <span class="num">12</span>, cx, cy + <span class="num">12</span>, <span class="num">255</span>, <span class="num">215</span>, <span class="num">69</span>, <span class="num">200</span>)
+
+    <span class="cm">-- 所有检测目标</span>
+    <span class="kw">local</span> preds = <span class="ns2">client</span>.<span class="fn">get_predictions</span>()
+    <span class="kw">for</span> _, p <span class="kw">in</span> <span class="fn">ipairs</span>(preds) <span class="kw">do</span>
+        <span class="ns2">render</span>.<span class="fn">rect</span>(p.x, p.y, p.w, p.h, <span class="num">255</span>, <span class="num">255</span>, <span class="num">255</span>, <span class="num">120</span>)
+        <span class="ns2">render</span>.<span class="fn">text</span>(p.x, p.y - <span class="num">16</span>,
+            <span class="ns2">string</span>.<span class="fn">format</span>(<span class="str">"#%d %s %.0f%%"</span>, p.id, p.alias, p.confidence * <span class="num">100</span>),
+            <span class="num">255</span>, <span class="num">255</span>, <span class="num">255</span>, <span class="num">180</span>)
+    <span class="kw">end</span>
+
+    <span class="cm">-- 锁定目标高亮</span>
+    <span class="kw">local</span> t = <span class="ns2">client</span>.<span class="fn">get_target</span>()
+    <span class="kw">if</span> t <span class="kw">then</span>
+        <span class="ns2">render</span>.<span class="fn">rect</span>(t.x - <span class="num">2</span>, t.y - <span class="num">2</span>, t.w + <span class="num">4</span>, t.h + <span class="num">4</span>, <span class="num">255</span>, <span class="num">215</span>, <span class="num">69</span>)
+        <span class="ns2">render</span>.<span class="fn">line</span>(cx, cy, t.cx, t.cy, <span class="num">255</span>, <span class="num">80</span>, <span class="num">80</span>, <span class="num">140</span>)
+    <span class="kw">end</span>
+
+    <span class="cm">-- 信息条</span>
+    <span class="ns2">render</span>.<span class="fn">rect_filled</span>(<span class="num">12</span>, <span class="num">44</span>, <span class="num">180</span>, <span class="num">24</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">100</span>)
+    <span class="ns2">render</span>.<span class="fn">text</span>(<span class="num">18</span>, <span class="num">48</span>,
+        <span class="ns2">string</span>.<span class="fn">format</span>(<span class="str">"fps: %.0f  preds: %d"</span>, <span class="ns2">client</span>.<span class="fn">get_fps</span>(), #preds),
+        <span class="num">175</span>, <span class="num">175</span>, <span class="num">175</span>)
+<span class="kw">end</span>)
+
+<span class="ns2">client</span>.<span class="fn">set_event_callback</span>(<span class="str">"target"</span>, <span class="kw">function</span>(t)
+    <span class="ns2">client</span>.<span class="fn">log</span>(t <span class="kw">and</span> (<span class="str">"locked #"</span> .. t.id) <span class="kw">or</span> <span class="str">"target lost"</span>)
+<span class="kw">end</span>)</code></pre>
+</section>
+
+</main>
+
+<script>
+  const links = document.querySelectorAll('#sidebar a');
+  const sections = document.querySelectorAll('#content section');
+
+  function show(id) {
+    if (!document.getElementById(id)) id = 'getting-started';
+    sections.forEach(s => s.classList.toggle('active', s.id === id));
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+    document.getElementById('sidebar').classList.remove('open');
+    if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+    window.scrollTo(0, 0);
+  }
+
+  links.forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    show(a.getAttribute('href').slice(1));
+  }));
+
+  show((location.hash || '#getting-started').slice(1));
+</script>
+</body>
+</html>

@@ -1,150 +1,106 @@
-import { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
-import LogoIcon from './LogoIcon'
+import { useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
+import { FiMenu, FiX } from 'react-icons/fi'
+import { useLang } from '../i18n/useLang'
 
-const COMPACT_MQ = '(max-width: 1024px)'
+const NAV_ITEMS = [
+  { to: '/', key: 'nav.home' },
+  { to: '/docs', key: 'nav.docs' },
+  { to: '/about', key: 'nav.about' },
+]
 
-function Navbar({ lang, onLangChange }) {
-  const location = useLocation()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [isCompact, setIsCompact] = useState(false)
+function navLinkClass({ isActive }) {
+  const base = 'px-4 py-2 rounded-full text-sm transition-colors duration-200'
+  return isActive
+    ? `${base} text-brand bg-brand/10`
+    : `${base} text-mist-dim hover:text-mist hover:bg-white/5`
+}
 
-  useEffect(() => {
-    const mq = window.matchMedia(COMPACT_MQ)
-    const apply = () => {
-      setIsCompact(mq.matches)
-      if (!mq.matches) setMenuOpen(false)
-    }
-    apply()
-    mq.addEventListener('change', apply)
-    return () => mq.removeEventListener('change', apply)
-  }, [])
+// Capsule segmented switch: 中 | EN, active side highlighted in brand gold
+function LangSwitch() {
+  const { lang, setLang } = useLang()
+  return (
+    <div className="flex items-center rounded-full border border-white/10 p-0.5 text-xs">
+      {[
+        { id: 'zh', label: '中' },
+        { id: 'en', label: 'EN' },
+      ].map((opt) => (
+        <button
+          key={opt.id}
+          onClick={() => setLang(opt.id)}
+          aria-pressed={lang === opt.id}
+          className={`px-2.5 py-1 rounded-full transition-colors duration-200 ${
+            lang === opt.id ? 'bg-brand/15 text-brand' : 'text-mist-dim hover:text-mist'
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  )
+}
 
-  useEffect(() => {
-    setMenuOpen(false)
-  }, [location.pathname])
-
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') setMenuOpen(false)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
-  useEffect(() => {
-    if (!isCompact || !menuOpen) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [isCompact, menuOpen])
-
-  const closeMenu = () => setMenuOpen(false)
-  const toggleMenu = () => setMenuOpen((o) => !o)
-
-  const t = lang === 'zh'
-    ? {
-        home: '首页',
-        docs: '文档',
-        about: '关于我们',
-        download: '立即购买',
-        openMenu: '打开导航菜单',
-        closeMenu: '关闭导航菜单',
-      }
-    : {
-        home: 'Home',
-        docs: 'Documentation',
-        about: 'About Us',
-        download: 'Buy now',
-        openMenu: 'Open navigation menu',
-        closeMenu: 'Close navigation menu',
-      }
-
-  const linkClass = ({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`
+export default function Navbar() {
+  const [open, setOpen] = useState(false)
+  const { t } = useLang()
 
   return (
-    <header className="site-nav-wrap">
-      {menuOpen && isCompact && (
-        <div
-          className="site-nav-backdrop"
-          aria-hidden
-          onClick={closeMenu}
-        />
-      )}
+    <header className="fixed top-0 inset-x-0 z-50">
+      <div className="mx-auto max-w-[1200px] px-6">
+        <nav className="glass mt-4 rounded-2xl flex items-center justify-between h-14 px-4">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group" onClick={() => setOpen(false)}>
+            <span className="size-8 rounded-lg bg-brand/15 border border-brand/30 grid place-items-center">
+              <span className="size-2.5 rounded-full bg-brand transition-transform duration-240 group-hover:scale-125" />
+            </span>
+            <span className="font-display tracking-wide text-lg text-mist">Braytech</span>
+          </Link>
 
-      <div className="container-shell site-nav">
-        <NavLink to="/" className="brand" onClick={closeMenu}>
-          <span className="brand-mark" aria-hidden="true">
-            <LogoIcon className="brand-mark-icon" />
-          </span>
-          <div>
-            <p className="brand-title text-backslash">MIXOCORE</p>
-            <p className="brand-subtitle">DML</p>
+          {/* Desktop links + language switch */}
+          <div className="hidden md:flex items-center gap-1">
+            {NAV_ITEMS.map((item) => (
+              <NavLink key={item.to} to={item.to} className={navLinkClass} end={item.to === '/'}>
+                {t(item.key)}
+              </NavLink>
+            ))}
+            <span className="mx-2 h-4 w-px bg-white/10" />
+            <LangSwitch />
           </div>
-        </NavLink>
 
-        <nav
-          id="primary-nav"
-          className={`nav-links ${menuOpen ? 'is-open' : ''}`}
-          inert={isCompact && !menuOpen ? true : undefined}
-          aria-label={lang === 'zh' ? '主导航' : 'Main navigation'}
-        >
-          <NavLink to="/" end className={linkClass} onClick={closeMenu}>
-            {t.home}
-          </NavLink>
-          <NavLink to="/tutorial" className={linkClass} onClick={closeMenu}>
-            {t.docs}
-          </NavLink>
-          <NavLink to="/socials" className={linkClass} onClick={closeMenu}>
-            {t.about}
-          </NavLink>
+          {/* Mobile: language switch + hamburger */}
+          <div className="md:hidden flex items-center gap-2">
+            <LangSwitch />
+            <button
+              className="p-2 rounded-lg text-mist-dim hover:text-mist hover:bg-white/5 transition-colors"
+              aria-label={open ? t('nav.menu.close') : t('nav.menu.open')}
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? <FiX size={20} /> : <FiMenu size={20} />}
+            </button>
+          </div>
         </nav>
 
-        <div className="nav-actions">
-          <div className="site-lang-toggle">
-            <button
-              type="button"
-              className={`site-lang-btn ${lang === 'zh' ? 'is-active' : ''}`}
-              onClick={() => onLangChange('zh')}
-            >
-              中文
-            </button>
-            <button
-              type="button"
-              className={`site-lang-btn ${lang === 'en' ? 'is-active' : ''}`}
-              onClick={() => onLangChange('en')}
-            >
-              EN
-            </button>
+        {/* Mobile dropdown panel */}
+        {open && (
+          <div className="glass md:hidden mt-2 rounded-2xl p-2 flex flex-col gap-1 fade-in">
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `px-4 py-3 rounded-xl text-sm transition-colors ${
+                    isActive ? 'text-brand bg-brand/10' : 'text-mist-dim hover:text-mist hover:bg-white/5'
+                  }`
+                }
+              >
+                {t(item.key)}
+              </NavLink>
+            ))}
           </div>
-          <a
-            href="https://1820200195.share.123pan.cn/123pan/01wojv-cXSod"
-            className="download-button"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {t.download}
-          </a>
-          <button
-            type="button"
-            className={`site-nav-menu-btn ${menuOpen ? 'is-open' : ''}`}
-            aria-expanded={menuOpen}
-            aria-controls="primary-nav"
-            aria-label={menuOpen ? t.closeMenu : t.openMenu}
-            onClick={toggleMenu}
-          >
-            <span className="site-nav-menu-btn-bars" aria-hidden="true">
-              <span className="site-nav-menu-btn-bar" />
-              <span className="site-nav-menu-btn-bar" />
-              <span className="site-nav-menu-btn-bar" />
-            </span>
-          </button>
-        </div>
+        )}
       </div>
     </header>
   )
 }
-
-export default Navbar

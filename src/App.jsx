@@ -1,31 +1,30 @@
-// src/App.jsx
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
-import Tutorial from './pages/Tutorial'
-import Socials from './pages/Socials'
+import Docs from './pages/Docs'
+import About from './pages/About'
 
-function App() {
-  const [lang, setLang] = useState('zh')
-  const location = useLocation()
+export default function App() {
+  const { pathname } = useLocation()
+ 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar lang={lang} onLangChange={setLang} />
-      <main className="app-main flex-1">
-        <div key={location.pathname} className="page-transition">
-          <Routes location={location}>
-            <Route path="/" element={<Home lang={lang} />} />
-            <Route path="/tutorial" element={<Tutorial lang={lang} />} />
-            <Route path="/socials" element={<Socials lang={lang} />} />
-          </Routes>
-        </div>
+      <Navbar />
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/docs" element={<Docs />} />
+          <Route path="/about" element={<About />} />
+          <Route path="*" element={<Home />} />
+        </Routes>
       </main>
-      <Footer lang={lang} />
+      <Footer />
     </div>
   )
 }
-
-export default App
