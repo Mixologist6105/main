@@ -121,12 +121,14 @@
 <button id="menuBtn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
 
 <nav id="sidebar">
-  <div class="logo"><b>Braytech Lua API</b><span>MoonSharp (Lua 5.2)</span></div>
+  <div class="logo"><b>Braytech Lua API</b><span>v5.83+ · MoonSharp (Lua 5.2)</span></div>
   <div class="nav-group">开始</div>
   <a href="#getting-started">快速上手</a>
   <a href="#events">事件系统</a>
   <div class="nav-group">命名空间</div>
   <a href="#client"><code>client</code></a>
+  <a href="#mouse"><code>mouse</code></a>
+  <a href="#keyboard"><code>keyboard</code></a>
   <a href="#render"><code>render</code></a>
   <a href="#ui"><code>ui</code></a>
   <a href="#json"><code>json</code></a>
@@ -227,7 +229,7 @@ mathlib.<span class="fn">clamp</span>(x, <span class="num">0</span>, <span class
 
   <h2>运行时状态</h2>
   <div class="func"><div class="sig"><span class="ns2">client</span>.get_aim_state() → <span class="ret">table</span></div>
-    <div class="desc">瞄准/扳机状态：<code>aimbot_on</code>、<code>aimbot_active</code>（正在瞄准）、<code>triggerbot_on</code>、<code>triggerbot_active</code>、<code>override</code>（覆盖模式），均为 bool。</div></div>
+    <div class="desc">瞄准/扳机状态：<code>aimbot_on</code>、<code>aimbot_active</code>（正在瞄准）、<code>triggerbot_on</code>、<code>triggerbot_active</code>，均为 bool。</div></div>
   <div class="func"><div class="sig"><span class="ns2">client</span>.get_model_info() → <span class="ret">table</span></div>
     <div class="desc">当前模型：<code>name</code>、<code>input_width</code>、<code>input_height</code>、<code>classes</code>（类别名数组，1 起始）。未加载模型时尺寸为 0。</div></div>
   <div class="func"><div class="sig"><span class="ns2">client</span>.get_hardware() → <span class="ret">table</span></div>
@@ -303,6 +305,47 @@ mathlib.<span class="fn">clamp</span>(x, <span class="num">0</span>, <span class
   </table>
 </section>
  
+<section id="mouse">
+  <h1><span class="ns">mouse</span> 命名空间</h1>
+  <p class="lead">鼠标注入 · 硬件盒已连接时走硬件（MS_* 指令），未连接回退 Win32 软件输入 · 全部返回 bool（未知按键名返回 false 并写日志）</p>
+
+  <h2>移动</h2>
+  <div class="func"><div class="sig"><span class="ns2">mouse</span>.move(dx: <span class="ret">number</span>, dy: <span class="ret">number</span>) → <span class="ret">bool</span></div>
+    <div class="desc">相对移动鼠标。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">mouse</span>.move_to(x: <span class="ret">number</span>, y: <span class="ret">number</span>) → <span class="ret">bool</span></div>
+    <div class="desc">绝对移动到屏幕坐标。有硬件时按本机当前光标换算差值走相对注入。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">mouse</span>.position() → <span class="ret">x, y</span></div>
+    <div class="desc">本机当前光标位置，返回两个值。</div></div>
+
+  <h2>按键与滚轮</h2>
+  <div class="func"><div class="sig"><span class="ns2">mouse</span>.down(button: <span class="ret">string</span>) / <span class="ns2">mouse</span>.up(button: <span class="ret">string</span>) → <span class="ret">bool</span></div>
+    <div class="desc">按住 / 松开鼠标键：<code>"left"</code> / <code>"right"</code> / <code>"middle"</code> / <code>"mouse4"</code> / <code>"mouse5"</code>（不区分大小写）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">mouse</span>.click(button: <span class="ret">string</span> [, hold_ms: <span class="ret">number</span>]) → <span class="ret">bool</span></div>
+    <div class="desc">单击，hold_ms 为按下保持毫秒数，默认 10（上限 10000）。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">mouse</span>.wheel(delta: <span class="ret">number</span>) → <span class="ret">bool</span></div>
+    <div class="desc">滚轮，正值向上，120 为一格。MAK 新固件走硬件 WHEEL 指令，否则回退 Win32。</div></div>
+  <pre><code><span class="ns2">mouse</span>.<span class="fn">move_to</span>(<span class="num">960</span>, <span class="num">540</span>)
+<span class="ns2">mouse</span>.<span class="fn">click</span>(<span class="str">"left"</span>, <span class="num">30</span>)
+<span class="ns2">mouse</span>.<span class="fn">wheel</span>(<span class="num">-120</span>)</code></pre>
+</section>
+
+<section id="keyboard">
+  <h1><span class="ns">keyboard</span> 命名空间</h1>
+  <p class="lead">键盘注入 · 硬件盒已连接时走硬件 HID，未连接回退 Win32 · 键名与按键绑定一致 · 全部返回 bool（未知键名返回 false 并写日志）</p>
+
+  <div class="func"><div class="sig"><span class="ns2">keyboard</span>.down(key: <span class="ret">string</span>) / <span class="ns2">keyboard</span>.up(key: <span class="ret">string</span>) → <span class="ret">bool</span></div>
+    <div class="desc">按住 / 松开按键。</div></div>
+  <div class="func"><div class="sig"><span class="ns2">keyboard</span>.press(key: <span class="ret">string</span> [, hold_ms: <span class="ret">number</span>]) → <span class="ret">bool</span></div>
+    <div class="desc">点按，hold_ms 默认 10（上限 10000）。MAK 新固件由设备端定时 KEY_PRESS，脚本线程不 sleep；否则本地下按-延时-松开的软件流程。</div></div>
+
+  <h2>键名约定</h2>
+  <p>字母 <code>"A"</code>..<code>"Z"</code>、数字 <code>"D0"</code>..<code>"D9"</code>、功能键 <code>"F1"</code>..<code>"F12"</code>、<code>"Enter"</code> / <code>"Escape"</code> / <code>"Space"</code> / <code>"Tab"</code>、修饰键 <code>"LCtrl"</code> / <code>"LShift"</code> / <code>"LAlt"</code> / <code>"LWin"</code>（右侧加 <code>R</code> 前缀，如 <code>"RCtrl"</code>）、方向键 <code>"LeftArrow"</code> 等，与 HidKeyMapper / 按键绑定显示名一致。</p>
+  <pre><code><span class="ns2">keyboard</span>.<span class="fn">press</span>(<span class="str">"F1"</span>)
+<span class="ns2">keyboard</span>.<span class="fn">down</span>(<span class="str">"LCtrl"</span>)
+<span class="ns2">keyboard</span>.<span class="fn">press</span>(<span class="str">"C"</span>)
+<span class="ns2">keyboard</span>.<span class="fn">up</span>(<span class="str">"LCtrl"</span>)</code></pre>
+</section>
+
 <section id="render">
   <h1><span class="ns">render</span> 命名空间</h1>
   <p class="lead">屏幕覆盖层绘制 · 仅在 <code>paint</code> 事件内有效 · 坐标为屏幕物理像素（自动处理 DPI）· 颜色分量 0~255，alpha 省略默认 255 · 每帧上限 512 条</p>
